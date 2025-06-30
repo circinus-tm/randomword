@@ -10,7 +10,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.yourcompany.wordgenerator
       vars:
-        BUNDLE_ID: "com.yourcompany.wordgenerator"
+        BUNDLE_ID: "com.circinustm.randomword"
         XCODE_WORKSPACE: "WordGenerator.xcworkspace"
         XCODE_SCHEME: "WordGenerator"
       node: 18.17.0
