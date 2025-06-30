@@ -1,18 +1,9 @@
 workflows:
-  ios-workflow:
-    name: iOS Workflow
-    max_build_duration: 120
+  ios-test:
+    name: iOS Test Build
+    max_build_duration: 60
     instance_type: mac_mini_m1
-    integrations:
-      app_store_connect: codemagic
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.yourcompany.wordgenerator
-      vars:
-        BUNDLE_ID: "com.circinustm.randomword"
-        XCODE_WORKSPACE: "WordGenerator.xcworkspace"
-        XCODE_SCHEME: "WordGenerator"
       node: 18.17.0
       xcode: latest
       cocoapods: default
@@ -23,24 +14,5 @@ workflows:
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles
-      - name: Build ipa for distribution
-        script: |
-          xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: false
-        submit_to_app_store: false
