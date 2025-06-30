@@ -10,9 +10,8 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.illuminations.contemplations
       vars:
-        BUNDLE_ID: "com.illuminations.contemplations"
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
-        XCODE_SCHEME: "App"
+        XCODE_WORKSPACE: "ios/WordGenerator.xcworkspace"
+        XCODE_SCHEME: "WordGenerator"
       node: 18.17.0
       xcode: latest
       cocoapods: default
@@ -20,33 +19,9 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install
-      - name: Prepare web assets
-        script: |
-          # Créer le dossier dist s'il n'existe pas
-          mkdir -p dist
-          
-          # Copier index.html
-          cp index.html dist/
-          
-          # Copier dossier assets s'il existe
-          if [ -d "assets" ]; then
-            cp -r assets dist/
-          fi
-          
-          # Copier dossier static s'il existe (pour les apps Python)
-          if [ -d "static" ]; then
-            cp -r static dist/
-          fi
-          
-          # Afficher le contenu pour debug
-          echo "Contenu du dossier dist:"
-          ls -la dist/
-      - name: Sync Capacitor
-        script: |
-          npx cap sync ios
       - name: Install CocoaPods dependencies
         script: |
-          cd ios/App && pod install
+          cd ios && pod install
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
