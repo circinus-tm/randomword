@@ -22,9 +22,19 @@ workflows:
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
-      - name: Set up code signing settings on Xcode project
+      - name: Set Bundle ID and Provisioning Profile
         script: |
+          # Mettre à jour le Bundle ID dans le projet
+          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = .*/PRODUCT_BUNDLE_IDENTIFIER = com.illuminations.contemplations;/g' ios/WordGenerator.xcodeproj/project.pbxproj
+          
+          # Forcer Manual Code Signing
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/WordGenerator.xcodeproj/project.pbxproj
+          
+          # Utiliser les profils
           xcode-project use-profiles
+          
+          # Forcer le profil pour le target WordGenerator
+          xcode-project use-profiles --target "WordGenerator"
       - name: Build ipa for distribution
         script: |
           xcode-project build-ipa \
