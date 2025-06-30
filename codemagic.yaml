@@ -33,8 +33,6 @@ workflows:
           # Utiliser les profils
           xcode-project use-profiles
           
-          # Forcer le profil pour le target ContemplationsProfil
-          xcode-project use-profiles --target "ContemplationsProfil"
       - name: Build ipa for distribution
         script: |
           xcode-project build-ipa \
