@@ -21,3 +21,10 @@ workflows:
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
+  publishing:
+    app_store_connect:
+      apple_id: paul.todorov.mail@gmail.com
+      password: nhtm-zncf-knem-mkpv
+      submit_to_testflight: true
+      submit_to_app_store: false
+      
