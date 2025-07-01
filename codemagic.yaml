@@ -22,6 +22,14 @@ workflows:
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
+      - name: Auto-increment version and build number
+        script: |
+          cd ios
+          # Set build number to current timestamp (always unique)
+          agvtool new-version -all $(date +%s)
+          # Set version to 1.1 (you can change this as needed)
+          agvtool new-marketing-version "1.1"
+          cd ..
       - name: Set Bundle ID and Provisioning Profile
         script: |
           # Mettre à jour le Bundle ID dans le projet

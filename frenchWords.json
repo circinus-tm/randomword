@@ -1,0 +1,782 @@
+[
+  {
+    "word": "Abécédaire",
+    "definition": "Livre élémentaire pour apprendre l'alphabet et la lecture.",
+    "category": "Éducation"
+  },
+  {
+    "word": "Abluer",
+    "definition": "Laver, nettoyer rituellement dans un contexte religieux.",
+    "category": "Religion"
+  },
+  {
+    "word": "Aboulie",
+    "definition": "Trouble de la volonté caractérisé par une difficulté à prendre des décisions ou à passer à l'action.",
+    "category": "Psychologie"
+  },
+  {
+    "word": "Absolution",
+    "definition": "Rémission des péchés accordée par un prêtre dans le sacrement de pénitence.",
+    "category": "Religion"
+  },
+  {
+    "word": "Abstème",
+    "definition": "Qui s'abstient de boissons alcoolisées par tempérance ou par régime.",
+    "category": "Mode de vie"
+  },
+  {
+    "word": "Abyme",
+    "definition": "Procédé artistique consistant à représenter une œuvre dans cette même œuvre, créant un effet de mise en abîme.",
+    "category": "Art"
+  },
+  {
+    "word": "Acabit",
+    "definition": "Qualité, nature d'une personne ou d'une chose, généralement en mauvaise part.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Académie",
+    "definition": "Institution savante ; école d'enseignement artistique ; assemblée de gens de lettres.",
+    "category": "Éducation"
+  },
+  {
+    "word": "Accrétion",
+    "definition": "Processus d'augmentation par agrégation de matière.",
+    "category": "Sciences"
+  },
+  {
+    "word": "Acédie",
+    "definition": "État de paresse spirituelle, d'indifférence et de découragement dans la vie religieuse.",
+    "category": "Religion"
+  },
+  {
+    "word": "Acribie",
+    "definition": "Soin minutieux, précision extrême dans l'exécution d'un travail.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Adamantin",
+    "definition": "Qui a la dureté du diamant ; qui est d'une fermeté inébranlable.",
+    "category": "Matériaux"
+  },
+  {
+    "word": "Adminicule",
+    "definition": "Aide, secours ; élément qui vient à l'appui d'une démonstration.",
+    "category": "Logique"
+  },
+  {
+    "word": "Affanure",
+    "definition": "Action de donner à manger aux animaux domestiques.",
+    "category": "Agriculture"
+  },
+  {
+    "word": "Affiquet",
+    "definition": "Petit ornement, parure de peu de valeur mais recherchée.",
+    "category": "Mode"
+  },
+  {
+    "word": "Alacrité",
+    "definition": "Vivacité enjouée, entrain joyeux et empressé.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Alexithymie",
+    "definition": "Difficulté à identifier et à exprimer ses émotions.",
+    "category": "Psychologie"
+  },
+  {
+    "word": "Aliboufier",
+    "definition": "Arbre des régions chaudes dont on tire le benjoin.",
+    "category": "Botanique"
+  },
+  {
+    "word": "Amphigouri",
+    "definition": "Discours ou écrit volontairement burlesque, incompréhensible.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Anagnoste",
+    "definition": "Dans l'Antiquité, esclave chargé de faire la lecture.",
+    "category": "Histoire"
+  },
+  {
+    "word": "Anagogie",
+    "definition": "Interprétation mystique et spirituelle des textes sacrés.",
+    "category": "Religion"
+  },
+  {
+    "word": "Anamnèse",
+    "definition": "Rappel du passé ; en médecine, ensemble des renseignements fournis par le malade.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Anantapodoton",
+    "definition": "Figure de style où une proposition reste inachevée, sans sa conclusion attendue.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Anastrophe",
+    "definition": "Inversion de l'ordre habituel des mots dans une phrase.",
+    "category": "Grammaire"
+  },
+  {
+    "word": "Anaptyxe",
+    "definition": "Développement d'une voyelle entre deux consonnes pour faciliter la prononciation.",
+    "category": "Linguistique"
+  },
+  {
+    "word": "Ancillaire",
+    "definition": "Qui concerne les servantes ; qui a un rôle accessoire, auxiliaire.",
+    "category": "Général"
+  },
+  {
+    "word": "Anisomastie",
+    "definition": "Asymétrie des seins, différence de volume entre les deux seins.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Antilabe",
+    "definition": "Partage d'un vers entre plusieurs personnages au théâtre.",
+    "category": "Théâtre"
+  },
+  {
+    "word": "Antilogie",
+    "definition": "Contradiction dans les termes ou dans les idées.",
+    "category": "Logique"
+  },
+  {
+    "word": "Apographe",
+    "definition": "Copie d'un manuscrit original, transcription.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Aponie",
+    "definition": "Absence de douleur, état d'insensibilité à la souffrance.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Apophatisme",
+    "definition": "Théologie négative qui définit Dieu par ce qu'il n'est pas.",
+    "category": "Religion"
+  },
+  {
+    "word": "Apophénie",
+    "definition": "Tendance à percevoir des relations significatives dans des événements aléatoires.",
+    "category": "Psychologie"
+  },
+  {
+    "word": "Apotropaïque",
+    "definition": "Qui a le pouvoir d'écarter les influences maléfiques.",
+    "category": "Mythologie"
+  },
+  {
+    "word": "Arantèle",
+    "definition": "Toile d'araignée, particulièrement celle qui est tendue entre les branches.",
+    "category": "Nature"
+  },
+  {
+    "word": "Archiâtre",
+    "definition": "Premier médecin, médecin en chef dans l'Antiquité.",
+    "category": "Histoire"
+  },
+  {
+    "word": "Artophage",
+    "definition": "Qui se nourrit principalement de pain.",
+    "category": "Alimentation"
+  },
+  {
+    "word": "Assoter",
+    "definition": "Rendre fou d'amour, ensorceler par la passion.",
+    "category": "Amour"
+  },
+  {
+    "word": "Ataraxie",
+    "definition": "Tranquillité de l'âme, imperturbabilité selon la philosophie antique.",
+    "category": "Philosophie"
+  },
+  {
+    "word": "Atrabile",
+    "definition": "Bile noire ; humeur mélancolique, tristesse profonde.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Auciège",
+    "definition": "Terme de fauconnerie désignant l'art de dresser les oiseaux de proie.",
+    "category": "Chasse"
+  },
+  {
+    "word": "Aulique",
+    "definition": "Qui appartient à la cour, qui concerne la vie de cour.",
+    "category": "Histoire"
+  },
+  {
+    "word": "Auloffée",
+    "definition": "Coup de vent violent et subit en mer.",
+    "category": "Marine"
+  },
+  {
+    "word": "Auxèse",
+    "definition": "Figure de rhétorique consistant en une gradation ascendante.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Baderne",
+    "definition": "Vieille femme acariâtre ; personne retardataire, routinière.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Baragouin",
+    "definition": "Langage incorrect et difficile à comprendre.",
+    "category": "Langage"
+  },
+  {
+    "word": "Batrachomyomachie",
+    "definition": "Combat burlesque entre les grenouilles et les souris ; par extension, querelle futile.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Battologie",
+    "definition": "Répétition inutile et fastidieuse des mêmes mots, des mêmes idées.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Béotien",
+    "definition": "Personne ignorante et grossière, dénuée de goût artistique.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Berlue",
+    "definition": "Trouble de la vue qui fait voir des objets qui n'existent pas.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Besson",
+    "definition": "Jumeau, terme ancien et actuellement inusité.",
+    "category": "Famille"
+  },
+  {
+    "word": "Blandices",
+    "definition": "Paroles flatteuses et caressantes destinées à séduire.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Blézimarder",
+    "definition": "Regarder d'un œil torve, loucher légèrement.",
+    "category": "Comportement"
+  },
+  {
+    "word": "Blossir",
+    "definition": "Se blottir, se pelotonner contre quelqu'un ou quelque chose.",
+    "category": "Comportement"
+  },
+  {
+    "word": "Bobeliner",
+    "definition": "Dire des sottises, parler de manière frivole et insensée.",
+    "category": "Langage"
+  },
+  {
+    "word": "Boustrophédon",
+    "definition": "Ancien mode d'écriture alternant le sens de gauche à droite et de droite à gauche.",
+    "category": "Écriture"
+  },
+  {
+    "word": "Brachyskélie",
+    "definition": "Brièveté anormale des jambes par rapport au tronc.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Brasillement",
+    "definition": "Action de brasiller, de briller d'un éclat rouge et vacillant.",
+    "category": "Lumière"
+  },
+  {
+    "word": "Bringé",
+    "definition": "Qui est de couleur fauve avec des raies plus foncées.",
+    "category": "Couleurs"
+  },
+  {
+    "word": "Brunante",
+    "definition": "Moment du crépuscule, tombée de la nuit.",
+    "category": "Temps"
+  },
+  {
+    "word": "Bucentaure",
+    "definition": "Galère d'apparat des doges de Venise ; monstre fabuleux mi-homme mi-taureau.",
+    "category": "Marine"
+  },
+  {
+    "word": "Cacochyme",
+    "definition": "Qui a une mauvaise constitution, une santé défaillante.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Cacodémon",
+    "definition": "Démon malfaisant dans les croyances antiques.",
+    "category": "Mythologie"
+  },
+  {
+    "word": "Cacotopie",
+    "definition": "Lieu imaginaire où tout va mal, contraire de l'utopie.",
+    "category": "Philosophie"
+  },
+  {
+    "word": "Calamophile",
+    "definition": "Qui aime les roseaux ; amateur de calames (plumes de roseau).",
+    "category": "Botanique"
+  },
+  {
+    "word": "Caléfaction",
+    "definition": "Action de chauffer, d'échauffer ; état de ce qui est chauffé.",
+    "category": "Physique"
+  },
+  {
+    "word": "Calliépie",
+    "definition": "Don de bien parler, éloquence naturelle.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Callipédie",
+    "definition": "Art d'avoir de beaux enfants.",
+    "category": "Famille"
+  },
+  {
+    "word": "Callipyge",
+    "definition": "Qui a de belles fesses (se dit surtout des statues antiques).",
+    "category": "Art"
+  },
+  {
+    "word": "Camouflet",
+    "definition": "Affront public, humiliation ; fumée qu'on souffle au visage de quelqu'un.",
+    "category": "Comportement"
+  },
+  {
+    "word": "Candaulisme",
+    "definition": "Plaisir que prend un homme à montrer sa femme nue à d'autres hommes.",
+    "category": "Sexualité"
+  },
+  {
+    "word": "Caparaconner",
+    "definition": "Couvrir un cheval de son caparaçon ; parer avec ostentation.",
+    "category": "Équitation"
+  },
+  {
+    "word": "Capucinade",
+    "definition": "Sermon ennuyeux et mal fait ; discours moralisateur et hypocrite.",
+    "category": "Religion"
+  },
+  {
+    "word": "Caquetoire",
+    "definition": "Chaise à dossier élevé où les femmes s'asseyaient pour bavarder.",
+    "category": "Mobilier"
+  },
+  {
+    "word": "Carbonado",
+    "definition": "Diamant noir utilisé dans l'industrie.",
+    "category": "Minéralogie"
+  },
+  {
+    "word": "Castramétation",
+    "definition": "Art de choisir, de disposer et de fortifier un camp militaire.",
+    "category": "Militaire"
+  },
+  {
+    "word": "Casuistique",
+    "definition": "Partie de la théologie morale qui s'occupe des cas de conscience.",
+    "category": "Religion"
+  },
+  {
+    "word": "Catabase",
+    "definition": "Descente aux Enfers ; récit d'un voyage dans l'au-delà.",
+    "category": "Mythologie"
+  },
+  {
+    "word": "Catachrèse",
+    "definition": "Figure de style consistant à détourner un mot de son sens propre.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Cataglottisme",
+    "definition": "Baiser donné avec la langue.",
+    "category": "Amour"
+  },
+  {
+    "word": "Catalectique",
+    "definition": "Se dit d'un vers auquel il manque une syllabe à la fin.",
+    "category": "Poésie"
+  },
+  {
+    "word": "Catalepsie",
+    "definition": "État pathologique caractérisé par la suspension des mouvements volontaires.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Cataménial",
+    "definition": "Qui se rapporte aux menstrues, aux règles féminines.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Cataplexie",
+    "definition": "Perte soudaine du tonus musculaire provoquée par une émotion.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Cataptose",
+    "definition": "Figure de rhétorique par laquelle on souhaite du mal à quelqu'un.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Céraunies",
+    "definition": "Pierres de foudre, objets préhistoriques que l'on croyait formés par la foudre.",
+    "category": "Archéologie"
+  },
+  {
+    "word": "Céroféraire",
+    "definition": "Clerc qui porte les cierges dans les cérémonies religieuses.",
+    "category": "Religion"
+  },
+  {
+    "word": "Céruléen",
+    "definition": "D'un bleu d'azur, couleur du ciel serein.",
+    "category": "Couleurs"
+  },
+  {
+    "word": "Chafouinerie",
+    "definition": "Action, parole de chafouine ; mesquinerie sournoise.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Chalcographie",
+    "definition": "Art de graver sur cuivre ; gravure sur cuivre.",
+    "category": "Art"
+  },
+  {
+    "word": "Chamane",
+    "definition": "Prêtre-sorcier de certaines religions, intermédiaire entre les hommes et les esprits.",
+    "category": "Religion"
+  },
+  {
+    "word": "Charabia",
+    "definition": "Langage incompréhensible, jargon confus.",
+    "category": "Langage"
+  },
+  {
+    "word": "Charivari",
+    "definition": "Bruit discordant fait avec des casseroles, des sifflets ; tapage assourdissant.",
+    "category": "Musique"
+  },
+  {
+    "word": "Chattemite",
+    "definition": "Personne qui affecte la douceur pour tromper.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Chiliasme",
+    "definition": "Doctrine selon laquelle le Christ reviendra régner mille ans sur terre.",
+    "category": "Religion"
+  },
+  {
+    "word": "Chinfreneau",
+    "definition": "Ornement d'architecture, de menuiserie en forme de feuillage découpé.",
+    "category": "Architecture"
+  },
+  {
+    "word": "Chiragre",
+    "definition": "Goutte qui affecte les mains, les doigts.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Chirognomonie",
+    "definition": "Art de connaître le caractère d'une personne par l'inspection des mains.",
+    "category": "Divination"
+  },
+  {
+    "word": "Chiromancie",
+    "definition": "Divination par l'inspection des lignes de la main.",
+    "category": "Divination"
+  },
+  {
+    "word": "Chironomie",
+    "definition": "Art de s'exprimer par gestes, gestuelle.",
+    "category": "Communication"
+  },
+  {
+    "word": "Diramation",
+    "definition": "Fait de se diviser en plusieurs branches, bifurcation.",
+    "category": "Botanique"
+  },
+  {
+    "word": "Ébaubi",
+    "definition": "Stupéfait, ébahi, frappé d'étonnement.",
+    "category": "Émotion"
+  },
+  {
+    "word": "Écholalie",
+    "definition": "Répétition automatique des paroles d'autrui.",
+    "category": "Psychologie"
+  },
+  {
+    "word": "Hétérophorie",
+    "definition": "Difficulté à tenir ses yeux ensemble, trouble de la vision binoculaire.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Hippocampelephantocamelos",
+    "definition": "Monstre imaginaire de Cyrano de Bergerac, mélange d'hippopotame, chameau, éléphant et chameau.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Lacrymule",
+    "definition": "Petite larme, gouttelette de pleur.",
+    "category": "Anatomie"
+  },
+  {
+    "word": "Lécanomancie",
+    "definition": "Divination par l'observation de l'eau dans un bassin.",
+    "category": "Divination"
+  },
+  {
+    "word": "Lifreflofre",
+    "definition": "Être imaginaire, lutin malicieux dans le folklore normand.",
+    "category": "Mythologie"
+  },
+  {
+    "word": "Lipogramme",
+    "definition": "Texte dans lequel on s'interdit d'utiliser une ou plusieurs lettres.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Lycanthrope",
+    "definition": "Personne atteinte de lycanthropie, qui se croit transformée en loup.",
+    "category": "Mythologie"
+  },
+  {
+    "word": "Macaronisme",
+    "definition": "Mélange de mots de langues différentes dans un même texte.",
+    "category": "Linguistique"
+  },
+  {
+    "word": "Maïeutique",
+    "definition": "Méthode d'enseignement de Socrate qui consiste à faire découvrir la vérité par une série de questions.",
+    "category": "Philosophie"
+  },
+  {
+    "word": "Pandiculation",
+    "definition": "Étirement involontaire des membres avec bâillements, au réveil ou en cas de fatigue.",
+    "category": "Physiologie"
+  },
+  {
+    "word": "Parrhésie",
+    "definition": "Liberté de tout dire, franchise dans le discours.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Psittacisme",
+    "definition": "Répétition mécanique de phrases ou formules sans les comprendre.",
+    "category": "Psychologie"
+  },
+  {
+    "word": "Quibus",
+    "definition": "Argent, monnaie (argot vieilli).",
+    "category": "Argot"
+  },
+  {
+    "word": "Quinquenelle",
+    "definition": "Terme rare désignant une série de cinq choses.",
+    "category": "Général"
+  },
+  {
+    "word": "Quoailler",
+    "definition": "Faire du bruit, crier (terme régional).",
+    "category": "Régional"
+  },
+  {
+    "word": "Quinquet",
+    "definition": "Lampe à huile à mèche circulaire inventée par Quinquet.",
+    "category": "Éclairage"
+  },
+  {
+    "word": "Quiquengrogne",
+    "definition": "Personne qui grogne sans cesse, grognon perpétuel.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Quorum",
+    "definition": "Nombre minimum de membres présents pour qu'une assemblée puisse valablement délibérer.",
+    "category": "Politique"
+  },
+  {
+    "word": "Rabonnir",
+    "definition": "Améliorer, rendre meilleur (terme vieilli).",
+    "category": "Amélioration"
+  },
+  {
+    "word": "Racheumeuneu",
+    "definition": "Terme familier pour désigner quelque chose de compliqué ou d'incompréhensible.",
+    "category": "Familier"
+  },
+  {
+    "word": "Radiesthésie",
+    "definition": "Pratique qui consiste à détecter des sources d'eau ou des objets cachés à l'aide d'une baguette.",
+    "category": "Divination"
+  },
+  {
+    "word": "Ramentevoir",
+    "definition": "Rappeler à la mémoire, faire ressouvenir (terme archaïque).",
+    "category": "Mémoire"
+  },
+  {
+    "word": "Sérendipité",
+    "definition": "Fait de découvrir quelque chose d'important de façon inattendue.",
+    "category": "Général"
+  },
+  {
+    "word": "Solublème",
+    "definition": "Solution qui crée un problème plus important que celui qu'elle cherchait à résoudre.",
+    "category": "Général"
+  },
+  {
+    "word": "Thigmonastie",
+    "definition": "Mouvement d'un végétal en réaction à un contact tactile.",
+    "category": "Botanique"
+  },
+  {
+    "word": "Immarcescible",
+    "definition": "Qui ne peut se flétrir, qui ne peut vieillir ou se corrompre.",
+    "category": "Général"
+  },
+  {
+    "word": "Zététique",
+    "definition": "Méthode de recherche fondée sur le doute et la critique des sources.",
+    "category": "Philosophie"
+  },
+  {
+    "word": "Zemblanité",
+    "definition": "Faculté de faire des découvertes malheureuses de façon systématique (contraire de sérendipité).",
+    "category": "Général"
+  },
+  {
+    "word": "Délétère",
+    "definition": "Nuisible à la santé, toxique ; qui provoque la corruption morale.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Sybarite",
+    "definition": "Personne qui recherche les plaisirs raffinés et le luxe.",
+    "category": "Mode de vie"
+  },
+  {
+    "word": "Sycophante",
+    "definition": "Délateur, dénonciateur dans l'Athènes antique ; flatteur intéressé.",
+    "category": "Histoire"
+  },
+  {
+    "word": "Synchronicité",
+    "definition": "Coïncidence temporelle de deux ou plusieurs événements sans lien causal apparent.",
+    "category": "Philosophie"
+  },
+  {
+    "word": "Synesthésie",
+    "definition": "Perception simultanée de plusieurs sensations de modalité différente.",
+    "category": "Psychologie"
+  },
+  {
+    "word": "Tarasque",
+    "definition": "Animal fabuleux du folklore provençal, dragon amphibie.",
+    "category": "Mythologie"
+  },
+  {
+    "word": "Tautogramme",
+    "definition": "Phrase ou vers dont tous les mots commencent par la même lettre.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Thuriféraire",
+    "definition": "Personne qui porte l'encensoir ; par extension, flatteur.",
+    "category": "Religion"
+  },
+  {
+    "word": "Ubuesque",
+    "definition": "Qui évoque le personnage du père Ubu ; grotesque et tyrannique.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Uchronie",
+    "definition": "Genre littéraire basé sur le principe de la réécriture de l'Histoire.",
+    "category": "Littérature"
+  },
+  {
+    "word": "Vaticination",
+    "definition": "Prédiction solennelle de l'avenir ; prophétie.",
+    "category": "Divination"
+  },
+  {
+    "word": "Vernaculaire",
+    "definition": "Qui appartient en propre à un pays, à une région.",
+    "category": "Linguistique"
+  },
+  {
+    "word": "Vibrion",
+    "definition": "Personne agitée, remuante ; type de bactérie.",
+    "category": "Biologie"
+  },
+  {
+    "word": "Vibrisses",
+    "definition": "Poils tactiles de certains mammifères (moustaches du chat).",
+    "category": "Anatomie"
+  },
+  {
+    "word": "Virelangue",
+    "definition": "Phrase ou suite de mots difficiles à articuler.",
+    "category": "Langage"
+  },
+  {
+    "word": "Vuvuzela",
+    "definition": "Instrument de musique sud-africain en forme de trompette.",
+    "category": "Musique"
+  },
+  {
+    "word": "Wacapou",
+    "definition": "Arbre de Guyane au bois très dur.",
+    "category": "Botanique"
+  },
+  {
+    "word": "Xénoglossie",
+    "definition": "Capacité supposée de parler une langue sans l'avoir apprise.",
+    "category": "Paranormal"
+  },
+  {
+    "word": "Xiphopage",
+    "definition": "Se dit de jumeaux siamois reliés par la région épigastrique.",
+    "category": "Médecine"
+  },
+  {
+    "word": "Ylang-ylang",
+    "definition": "Arbre tropical dont les fleurs servent en parfumerie.",
+    "category": "Botanique"
+  },
+  {
+    "word": "Yponomeute",
+    "definition": "Petit papillon dont la chenille ravage les arbres fruitiers.",
+    "category": "Entomologie"
+  },
+  {
+    "word": "Zélateur",
+    "definition": "Partisan zélé d'une doctrine, d'une cause.",
+    "category": "Caractère"
+  },
+  {
+    "word": "Zeugme",
+    "definition": "Figure de style qui consiste à rattacher grammaticalement des éléments dissemblables.",
+    "category": "Rhétorique"
+  },
+  {
+    "word": "Zoocénose",
+    "definition": "Ensemble des animaux vivant dans un même biotope.",
+    "category": "Écologie"
+  },
+  {
+    "word": "Zoonyme",
+    "definition": "Nom propre dérivé d'un nom d'animal.",
+    "category": "Linguistique"
+  }
+]
