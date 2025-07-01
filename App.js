@@ -1,89 +1,147 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Modal,
-  ScrollView,
   SafeAreaView,
   StatusBar,
 } from 'react-native';
 // Import the word database
 import frenchWordsData from './frenchWords.json';
 
-const App = () => {
-  // Use the imported word database
-  const [currentWord, setCurrentWord] = useState(getRandomWord());
-  const [showDefinition, setShowDefinition] = useState(false);
-  const [selectedWordDef, setSelectedWordDef] = useState('');
+// Helper function to shuffle an array
+const shuffleArray = (array) => {
+  let currentIndex = array.length,  randomIndex;
 
-  function getRandomWord() {
-    return frenchWordsData[Math.floor(Math.random() * frenchWordsData.length)];
+  // While there remain elements to shuffle.
+  while (currentIndex !== 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
   }
 
-  const handleNewWord = () => {
-    setCurrentWord(getRandomWord());
-    setShowDefinition(false);
+  return array;
+}
+
+const App = () => {
+  // State for the current word object
+  const [currentWord, setCurrentWord] = useState(null);
+  // State for the score
+  const [score, setScore] = useState(0);
+  // State to hold the 4 definition choices
+  const [definitions, setDefinitions] = useState([]);
+  // State to track the selected answer and whether the round is answered
+  const [answered, setAnswered] = useState(false);
+  // State to track the index of the selected definition
+  const [selectedDefinitionIndex, setSelectedDefinitionIndex] = useState(null);
+
+
+  // Function to get a random word from the database
+  const getRandomWord = (excludeWord = null) => {
+    let newWord;
+    do {
+      newWord = frenchWordsData[Math.floor(Math.random() * frenchWordsData.length)];
+    } while (excludeWord && newWord.word === excludeWord.word);
+    return newWord;
   };
 
-  const handleWordPress = () => {
-    setSelectedWordDef(currentWord.definition);
-    setShowDefinition(true);
+  // Function to set up a new round
+  const setupNewRound = () => {
+    setAnswered(false);
+    setSelectedDefinitionIndex(null);
+    const newWord = getRandomWord(currentWord);
+    setCurrentWord(newWord);
+
+    // Get 3 random wrong definitions
+    const wrongDefinitions = [];
+    while (wrongDefinitions.length < 3) {
+      const randomWord = getRandomWord(newWord);
+      if (randomWord.definition !== newWord.definition) {
+        wrongDefinitions.push(randomWord.definition);
+      }
+    }
+
+    // Combine correct and wrong definitions and shuffle them
+    const allDefinitions = shuffleArray([newWord.definition, ...wrongDefinitions]);
+    setDefinitions(allDefinitions);
   };
 
-  const closeDefinition = () => {
-    setShowDefinition(false);
+  // Initialize the first round
+  useEffect(() => {
+    setupNewRound();
+  }, []);
+
+
+  // Handle when a user selects a definition
+  const handleDefinitionPress = (definition, index) => {
+    if (answered) return; // Prevent changing answer
+
+    setAnswered(true);
+    setSelectedDefinitionIndex(index);
+
+    if (definition === currentWord.definition) {
+      setScore(prevScore => prevScore + 1);
+    }
   };
+
+  // Function to get the style for a definition button based on the state
+  const getDefinitionStyle = (definition, index) => {
+    if (!answered) {
+      return styles.definitionButton;
+    }
+    if (definition === currentWord.definition) {
+      return [styles.definitionButton, styles.correctAnswer];
+    }
+    if (index === selectedDefinitionIndex) {
+      return [styles.definitionButton, styles.incorrectAnswer];
+    }
+    return styles.definitionButton;
+  };
+
+  if (!currentWord) {
+    // Render a loading state or null while the first word is being set up
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
+      <StatusBar barStyle="light-content" backgroundColor="#2c3e50" />
       
-      <View style={styles.content}>
+      <View style={styles.header}>
         <Text style={styles.title}>Mots Rares</Text>
-        <Text style={styles.subtitle}>Français</Text>
-        
-        <View style={styles.statsContainer}>
-          <Text style={styles.statsText}>
-            {frenchWordsData.length} mots rares • Collection Le Garde-mots
-          </Text>
+        <View style={styles.scoreContainer}>
+          <Text style={styles.scoreText}>Score: {score}</Text>
         </View>
-        
-        <View style={styles.wordContainer}>
-          <TouchableOpacity onPress={handleWordPress} style={styles.wordButton}>
-            <Text style={styles.word}>{currentWord.word}</Text>
-            <Text style={styles.category}>{currentWord.category}</Text>
-            <Text style={styles.tapHint}>Touchez pour voir la définition</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity style={styles.button} onPress={handleNewWord}>
-          <Text style={styles.buttonText}>Nouveau Mot</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.footer}>Découvrez les trésors du français !</Text>
       </View>
 
-      <Modal
-        visible={showDefinition}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closeDefinition}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalWord}>{currentWord.word}</Text>
-            <Text style={styles.modalCategory}>• {currentWord.category} •</Text>
-            <ScrollView style={styles.definitionContainer}>
-              <Text style={styles.definition}>{selectedWordDef}</Text>
-            </ScrollView>
-            <TouchableOpacity style={styles.closeButton} onPress={closeDefinition}>
-              <Text style={styles.closeButtonText}>Fermer</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.content}>
+        <View style={styles.wordContainer}>
+          <Text style={styles.word}>{currentWord.word}</Text>
+          <Text style={styles.category}>{currentWord.category}</Text>
         </View>
-      </Modal>
+
+        <View style={styles.definitionsContainer}>
+          {definitions.map((definition, index) => (
+            <TouchableOpacity
+              key={index}
+              style={getDefinitionStyle(definition, index)}
+              onPress={() => handleDefinitionPress(definition, index)}
+              disabled={answered}
+            >
+              <Text style={styles.definitionText}>{definition}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={setupNewRound}>
+          <Text style={styles.buttonText}>Nouveau Mot</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -91,7 +149,32 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#34495e',
+  },
+  header: {
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#2c3e50',
+    paddingBottom: 10,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  scoreContainer: {
+    backgroundColor: '#e67e22',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+  },
+  scoreText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -99,79 +182,63 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#E8F4FD',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  statsContainer: {
-    marginBottom: 40,
-    paddingHorizontal: 20,
-  },
-  statsText: {
-    fontSize: 14,
-    color: '#E8F4FD',
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
   wordContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    paddingVertical: 30,
-    paddingHorizontal: 40,
-    marginBottom: 50,
+    padding: 25,
+    marginBottom: 30,
+    alignItems: 'center',
+    width: '100%',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 8,
-    minWidth: 250,
-    alignItems: 'center',
-  },
-  wordButton: {
-    alignItems: 'center',
   },
   word: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#4A90E2',
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#2c3e50',
     textAlign: 'center',
-    marginBottom: 10,
   },
   category: {
-    fontSize: 12,
-    color: '#95a5a6',
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  tapHint: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#7f8c8d',
     fontStyle: 'italic',
+    marginTop: 5,
+  },
+  definitionsContainer: {
+    width: '100%',
+    marginBottom: 30,
+  },
+  definitionButton: {
+    backgroundColor: '#ecf0f1',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  definitionText: {
+    fontSize: 16,
+    color: '#2c3e50',
     textAlign: 'center',
   },
+  correctAnswer: {
+    backgroundColor: '#2ecc71',
+    borderColor: '#27ae60',
+  },
+  incorrectAnswer: {
+    backgroundColor: '#e74c3c',
+    borderColor: '#c0392b',
+  },
   button: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#e67e22',
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 25,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
@@ -179,72 +246,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#4A90E2',
-    textAlign: 'center',
-  },
-  footer: {
-    fontSize: 14,
-    color: '#E8F4FD',
-    marginTop: 40,
-    textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 25,
-    margin: 20,
-    maxHeight: '70%',
-    width: '85%',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  modalWord: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4A90E2',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  modalCategory: {
-    fontSize: 14,
-    color: '#95a5a6',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: 20,
-  },
-  definitionContainer: {
-    maxHeight: 200,
-    marginBottom: 20,
-  },
-  definition: {
-    fontSize: 16,
-    color: '#34495e',
-    lineHeight: 24,
-    textAlign: 'justify',
-  },
-  closeButton: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 20,
-    alignSelf: 'center',
-  },
-  closeButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 });
 
