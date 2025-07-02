@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,9 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  ImageBackground,
+  Switch,
+  Animated,
 } from 'react-native';
 // Import the word database
 import frenchWordsData from './frenchWords.json';
@@ -32,6 +35,13 @@ const App = () => {
   const [answered, setAnswered] = useState(false);
   // State to track the index of the selected definition
   const [selectedDefinitionIndex, setSelectedDefinitionIndex] = useState(null);
+  // State for "Guerre intérieure" mode
+  const [isGuerreInterieureMode, setIsGuerreInterieureMode] = useState(false);
+  // State for the timer
+  const [timeLeft, setTimeLeft] = useState(30);
+  // Animated value for dramatic animations
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
 
   // Function to get a random word, optionally excluding the current one
   const getRandomWord = (excludeWord = null) => {
@@ -49,17 +59,14 @@ const App = () => {
     const newWord = getRandomWord(currentWord);
     setCurrentWord(newWord);
 
-    // Get 3 random wrong definitions
     const wrongDefinitions = [];
     while (wrongDefinitions.length < 3) {
       const randomWord = getRandomWord(newWord);
-      // Ensure the wrong definition is not the same as the correct one
       if (randomWord.definition !== newWord.definition) {
         wrongDefinitions.push(randomWord.definition);
       }
     }
 
-    // Combine correct and wrong definitions and shuffle them
     const allDefinitions = shuffleArray([newWord.definition, ...wrongDefinitions]);
     setDefinitions(allDefinitions);
   };
@@ -69,33 +76,72 @@ const App = () => {
     setupNewRound();
   }, []);
 
+  // Timer effect for "Guerre intérieure" mode
+  useEffect(() => {
+    let timer;
+    if (isGuerreInterieureMode && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prevTime => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsGuerreInterieureMode(false);
+      setTimeLeft(30); // Reset timer
+    }
+    return () => clearInterval(timer);
+  }, [isGuerreInterieureMode, timeLeft]);
+
   // Handle when a user selects a definition
   const handleDefinitionPress = (definition, index) => {
-    if (answered) return; // Prevent changing answer after one has been selected
+    if (answered) return;
 
     setAnswered(true);
     setSelectedDefinitionIndex(index);
 
     if (definition === currentWord.definition) {
       setScore(prevScore => prevScore + 1);
+      if (isGuerreInterieureMode) {
+        // Dramatic success animation
+        Animated.sequence([
+          Animated.timing(scaleAnim, { toValue: 1.2, duration: 200, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+        ]).start();
+      }
+    } else {
+      if (isGuerreInterieureMode) {
+        // Dramatic fail animation
+        Animated.sequence([
+          Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+        ]).start();
+      }
     }
   };
 
-  // Function to determine the style of a definition button based on the game state
+  // Toggle "Guerre intérieure" mode
+  const toggleGuerreInterieureMode = () => {
+    setIsGuerreInterieureMode(previousState => !previousState);
+    setScore(0);
+    setTimeLeft(30);
+  };
+
+  // Function to determine the style of a definition button
   const getDefinitionStyle = (definition, index) => {
     const stylesArray = [styles.definitionButton];
+    if (isGuerreInterieureMode) {
+      stylesArray.push(styles.guerreDefinitionButton);
+    }
     if (answered) {
       if (definition === currentWord.definition) {
-        // Style for the correct answer
         stylesArray.push(styles.correctAnswer);
       } else if (index === selectedDefinitionIndex) {
-        // Style for the selected incorrect answer
         stylesArray.push(styles.incorrectAnswer);
       }
     }
     return stylesArray;
   };
-  
+
   // Function to determine the text style for a definition button
   const getDefinitionTextStyle = (definition, index) => {
       if (answered && (definition === currentWord.definition || index === selectedDefinitionIndex)) {
@@ -109,41 +155,77 @@ const App = () => {
     return null;
   }
 
+  const shake = shakeAnim.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ['-1deg', '1deg'],
+  });
+
+  const animatedStyle = {
+    transform: [{ scale: scaleAnim }, { rotate: shake }],
+  };
+
+  const backgroundSource = isGuerreInterieureMode
+    ? require('./assets/guerre-interieure-bg.jpg')
+    : { uri: '' }; // No specific image for normal mode, it will use the backgroundColor
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
-      
-      <View style={styles.header}>
-        <Text style={styles.title}>Mots Rares</Text>
-        <View style={styles.scoreContainer}>
-            <Text style={styles.scoreText}>Score: {score}</Text>
+    <ImageBackground 
+      source={backgroundSource} 
+      style={styles.container}
+      imageStyle={{opacity: 0.5}}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor={isGuerreInterieureMode ? '#000000' : '#4A90E2'} />
+        
+        <View style={styles.header}>
+          <Text style={styles.title}>{isGuerreInterieureMode ? "Guerre Intérieure" : "Mots Rares"}</Text>
+          <View style={styles.scoreContainer}>
+              <Text style={styles.scoreText}>Score: {score}</Text>
+          </View>
         </View>
-      </View>
-      
-      <View style={styles.content}>
-        <View style={styles.wordContainer}>
-          <Text style={styles.word}>{currentWord.word}</Text>
-          <Text style={styles.category}>{currentWord.category}</Text>
-        </View>
+        
+        {isGuerreInterieureMode && (
+          <View style={styles.timerContainer}>
+            <Text style={styles.timerText}>{timeLeft}s</Text>
+          </View>
+        )}
 
-        <View style={styles.definitionsContainer}>
-          {definitions.map((definition, index) => (
-            <TouchableOpacity
-              key={index}
-              style={getDefinitionStyle(definition, index)}
-              onPress={() => handleDefinitionPress(definition, index)}
-              disabled={answered}
-            >
-              <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <Animated.View style={[styles.content, isGuerreInterieureMode && animatedStyle]}>
+          <View style={[styles.wordContainer, isGuerreInterieureMode && styles.guerreWordContainer]}>
+            <Text style={[styles.word, isGuerreInterieureMode && styles.guerreWord]}>{currentWord.word}</Text>
+            <Text style={styles.category}>{currentWord.category}</Text>
+          </View>
 
-        <TouchableOpacity style={styles.button} onPress={setupNewRound}>
-          <Text style={styles.buttonText}>Nouveau Mot</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          <View style={styles.definitionsContainer}>
+            {definitions.map((definition, index) => (
+              <TouchableOpacity
+                key={index}
+                style={getDefinitionStyle(definition, index)}
+                onPress={() => handleDefinitionPress(definition, index)}
+                disabled={answered}
+              >
+                <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity style={[styles.button, isGuerreInterieureMode && styles.guerreButton]} onPress={setupNewRound}>
+            <Text style={[styles.buttonText, isGuerreInterieureMode && styles.guerreButtonText]}>Nouveau Mot</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <View style={styles.switchContainer}>
+          <Text style={styles.switchLabel}>Guerre Intérieure</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isGuerreInterieureMode ? "#f5dd4b" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleGuerreInterieureMode}
+            value={isGuerreInterieureMode}
+          />
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -151,6 +233,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#4A90E2',
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -173,6 +258,15 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  timerContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  timerText: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
@@ -251,6 +345,33 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4A90E2',
     textAlign: 'center',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 20,
+  },
+  switchLabel: {
+    color: '#FFFFFF',
+    marginRight: 10,
+    fontSize: 16,
+  },
+  // Styles for "Guerre intérieure" mode
+  guerreWordContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  guerreWord: {
+    color: '#ff4757',
+  },
+  guerreDefinitionButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  guerreButton: {
+    backgroundColor: '#ff4757',
+  },
+  guerreButtonText: {
+    color: '#FFFFFF',
   },
 });
 
