@@ -147,6 +147,12 @@ const App = () => {
       if (answered && (definition === currentWord.definition || index === selectedDefinitionIndex)) {
           return [styles.definitionText, { color: '#FFFFFF' }];
       }
+      
+      // In guerre intérieure mode, use white text for better visibility
+      if (isGuerreInterieureMode) {
+          return styles.guerreDefinitionText;
+      }
+      
       return styles.definitionText;
   }
 
@@ -366,6 +372,11 @@ const styles = StyleSheet.create({
   },
   guerreDefinitionButton: {
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  guerreDefinitionText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   guerreButton: {
     backgroundColor: '#ff4757',
