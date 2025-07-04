@@ -107,7 +107,9 @@ const App = () => {
         ]).start();
       }
     } else {
+      // In guerre intérieure mode, wrong answers make you lose a point
       if (isGuerreInterieureMode) {
+        setScore(prevScore => Math.max(0, prevScore - 1)); // Prevent score from going below 0
         // Dramatic fail animation
         Animated.sequence([
           Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
