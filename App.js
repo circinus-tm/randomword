@@ -47,9 +47,15 @@ const App = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   // State for epic music
   const [epicMusicSound, setEpicMusicSound] = useState(null);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  // State for time bonus animation
+  const [showTimeBonus, setShowTimeBonus] = useState(false);
+  const [timeBonusAmount, setTimeBonusAmount] = useState(0);
+  const [timeBonusPosition, setTimeBonusPosition] = useState({ x: 0, y: 0 });
   // Animated value for dramatic animations
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  const timeBonusAnim = useRef(new Animated.Value(0)).current;
   // Leaderboard states
   const [leaderboard, setLeaderboard] = useState([]);
   const [showNameModal, setShowNameModal] = useState(false);
@@ -138,6 +144,8 @@ const App = () => {
   const setupNewRound = () => {
     setAnswered(false);
     setSelectedDefinitionIndex(null);
+    
+    // Ne générer un nouveau mot que si on clique explicitement sur "Nouveau Mot"
     const newWord = getRandomWord(currentWord);
     setCurrentWord(newWord);
 
@@ -153,10 +161,33 @@ const App = () => {
     setDefinitions(allDefinitions);
   };
 
+  // Function to just reset the current round without changing the word
+  const resetCurrentRound = () => {
+    setAnswered(false);
+    setSelectedDefinitionIndex(null);
+  };
+
   // Initialize the first round when the component mounts
   useEffect(() => {
     setupNewRound();
     loadLeaderboard();
+    
+    // Initialiser le système audio
+    const initAudio = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
+        console.log('Système audio initialisé');
+      } catch (error) {
+        console.log('Erreur lors de l\'initialisation audio:', error);
+      }
+    };
+    
+    initAudio();
   }, []);
 
   // Timer effect for "Guerre intérieure" mode
@@ -168,13 +199,19 @@ const App = () => {
       }, 1000);
     } else if (timeLeft === 0 && isGuerreInterieureMode) {
       // Capture the current score before resetting the mode
-      const finalScore = score;
+      const currentScore = score;
       setIsGuerreInterieureMode(false);
       setTimeLeft(15); // Reset timer to 15 seconds
-      stopEpicMusic(); // Arrêter la musique épique
-      handleGameEnd(finalScore); // Check if score qualifies for leaderboard
+      
+      // Arrêter la musique épique de façon asynchrone
+      stopEpicMusic().then(() => {
+        // Check if score qualifies for leaderboard après arrêt de la musique
+        handleGameEnd(currentScore);
+      });
     }
-    return () => clearInterval(timer);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [isGuerreInterieureMode, timeLeft, score]);
 
   // Cleanup effect for epic music
@@ -185,7 +222,7 @@ const App = () => {
   }, []);
 
   // Handle when a user selects a definition
-  const handleDefinitionPress = (definition, index) => {
+  const handleDefinitionPress = (definition, index, event) => {
     if (answered) return;
 
     setAnswered(true);
@@ -196,11 +233,29 @@ const App = () => {
       if (isGuerreInterieureMode) {
         // Ajouter 3 secondes au chronomètre pour une bonne réponse
         setTimeLeft(prevTime => prevTime + 3);
+        
+        // Capturer la position du clic pour l'animation
+        if (event && event.nativeEvent) {
+          const { pageX, pageY } = event.nativeEvent;
+          setTimeBonusPosition({ x: pageX, y: pageY });
+        } else {
+          // Position par défaut au centre si pas d'event
+          setTimeBonusPosition({ x: 200, y: 300 });
+        }
+        
+        // Afficher l'animation du bonus de temps
+        showTimeBonusAnimation(3);
+        
         // Dramatic success animation
         Animated.sequence([
           Animated.timing(scaleAnim, { toValue: 1.2, duration: 200, useNativeDriver: true }),
           Animated.timing(scaleAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
         ]).start();
+
+        // En mode guerre intérieure, passer au mot suivant après un très court délai
+        setTimeout(() => {
+          setupNewRound();
+        }, 400);
       }
     } else {
       // In guerre intérieure mode, wrong answers make you lose a point
@@ -213,6 +268,11 @@ const App = () => {
           Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
           Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
         ]).start();
+
+        // En mode guerre intérieure, passer au mot suivant après un très court délai
+        setTimeout(() => {
+          setupNewRound();
+        }, 400);
       }
     }
   };
@@ -220,11 +280,15 @@ const App = () => {
   // Function to load and play epic music
   const loadEpicMusic = async () => {
     try {
+      // D'abord arrêter la musique existante si elle existe
+      await stopEpicMusic();
+      
       const { sound } = await Audio.Sound.createAsync(
         require('./assets/1983 inst mix ab oz.mp3'),
-        { shouldPlay: true, isLooping: true, volume: 0.3 }
+        { shouldPlay: !isMusicMuted, isLooping: true, volume: isMusicMuted ? 0 : 0.3 }
       );
       setEpicMusicSound(sound);
+      console.log('Musique épique chargée et lancée');
     } catch (error) {
       console.log('Erreur lors du chargement de la musique épique:', error);
     }
@@ -234,11 +298,53 @@ const App = () => {
   const stopEpicMusic = async () => {
     if (epicMusicSound) {
       try {
-        await epicMusicSound.stopAsync();
-        await epicMusicSound.unloadAsync();
+        const status = await epicMusicSound.getStatusAsync();
+        if (status.isLoaded) {
+          await epicMusicSound.stopAsync();
+          await epicMusicSound.unloadAsync();
+        }
         setEpicMusicSound(null);
+        console.log('Musique épique arrêtée');
       } catch (error) {
         console.log('Erreur lors de l\'arrêt de la musique épique:', error);
+        // Force le reset même en cas d'erreur
+        setEpicMusicSound(null);
+      }
+    }
+  };
+
+  // Function to show time bonus animation
+  const showTimeBonusAnimation = (seconds) => {
+    setTimeBonusAmount(seconds);
+    setShowTimeBonus(true);
+    
+    // Reset animation value
+    timeBonusAnim.setValue(0);
+    
+    // Animation qui fait remonter le texte vers le haut avec fondu
+    Animated.timing(timeBonusAnim, {
+      toValue: 1,
+      duration: 2000, // Animation plus longue pour un effet fluide
+      useNativeDriver: true,
+    }).start(() => {
+      setShowTimeBonus(false);
+    });
+  };
+
+  // Function to toggle music mute
+  const toggleMusicMute = async () => {
+    const newMutedState = !isMusicMuted;
+    setIsMusicMuted(newMutedState);
+    
+    if (epicMusicSound) {
+      try {
+        if (newMutedState) {
+          await epicMusicSound.pauseAsync();
+        } else {
+          await epicMusicSound.playAsync();
+        }
+      } catch (error) {
+        console.log('Erreur lors du toggle de la musique:', error);
       }
     }
   };
@@ -252,9 +358,11 @@ const App = () => {
     
     if (newMode) {
       // Mode guerre intérieure activé - lancer la musique épique
+      console.log('Activation du mode Guerre Intérieure - Chargement de la musique...');
       await loadEpicMusic();
     } else {
       // Mode guerre intérieure désactivé - arrêter la musique épique
+      console.log('Désactivation du mode Guerre Intérieure - Arrêt de la musique...');
       await stopEpicMusic();
     }
   };
@@ -333,6 +441,33 @@ const App = () => {
             <Text style={styles.timerText}>{timeLeft}s</Text>
           </View>
 
+          {/* Animation du bonus de temps */}
+          {showTimeBonus && (
+            <Animated.View 
+              style={[
+                styles.timeBonusContainer,
+                {
+                  left: timeBonusPosition.x - 30, // Centrer le texte sur la position de clic
+                  top: timeBonusPosition.y,
+                  opacity: timeBonusAnim.interpolate({
+                    inputRange: [0, 0.3, 0.7, 1],
+                    outputRange: [0, 1, 1, 0], // Apparition rapide, maintien, puis fondu
+                  }),
+                  transform: [
+                    {
+                      translateY: timeBonusAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -200], // Remonte de 200px vers le haut
+                      }),
+                    },
+                  ],
+                }
+              ]}
+            >
+              <Text style={styles.timeBonusText}>+{timeBonusAmount}s!</Text>
+            </Animated.View>
+          )}
+
           <Animated.View style={[styles.content, animatedStyle]}>
             <View style={[styles.wordContainer, styles.guerreWordContainer]}>
               <Text style={[styles.word, styles.guerreWord]}>{currentWord.word}</Text>
@@ -344,7 +479,7 @@ const App = () => {
                 <TouchableOpacity
                   key={index}
                   style={getDefinitionStyle(definition, index)}
-                  onPress={() => handleDefinitionPress(definition, index)}
+                  onPress={(event) => handleDefinitionPress(definition, index, event)}
                   disabled={answered}
                 >
                   <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
@@ -366,6 +501,14 @@ const App = () => {
               onValueChange={toggleGuerreInterieureMode}
               value={isGuerreInterieureMode}
             />
+            {isGuerreInterieureMode && (
+              <TouchableOpacity 
+                style={styles.muteButtonBottom}
+                onPress={toggleMusicMute}
+              >
+                <Text style={styles.muteButtonBottomText}>{isMusicMuted ? '🔇' : '🔊'}</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Modal for entering player name */}
@@ -477,7 +620,7 @@ const App = () => {
                   <TouchableOpacity
                     key={index}
                     style={getDefinitionStyle(definition, index)}
-                    onPress={() => handleDefinitionPress(definition, index)}
+                    onPress={(event) => handleDefinitionPress(definition, index, event)}
                     disabled={answered}
                   >
                     <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
@@ -652,6 +795,30 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
   },
+  muteButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 10,
+  },
+  muteButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+  },
+  muteButtonBottom: {
+    backgroundColor: 'rgba(138, 43, 226, 0.7)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginLeft: 15,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
+  muteButtonBottomText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+  },
   timerContainer: {
     backgroundColor: '#8A2BE2',
     paddingVertical: 8,
@@ -661,6 +828,27 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
+  },
+  timeBonusContainer: {
+    position: 'absolute',
+    zIndex: 1000,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeBonusText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#27AE60',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#27AE60',
+    overflow: 'hidden',
   },
   content: {
     flex: 1,
