@@ -257,140 +257,279 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="light-content" backgroundColor={isGuerreInterieureMode ? '#000000' : '#4A90E2'} />
-        
-        <View style={styles.header}>
-          <Text style={styles.title}>{isGuerreInterieureMode ? "Guerre Intérieure" : "Mots Rares"}</Text>
-          <View style={styles.headerRight}>
-            <TouchableOpacity 
-              style={styles.leaderboardButton}
-              onPress={() => setShowLeaderboard(true)}
-            >
-              <Text style={styles.leaderboardButtonText}>🏆</Text>
-            </TouchableOpacity>
-            <View style={styles.scoreContainer}>
-                <Text style={styles.scoreText}>Score: {score}</Text>
-            </View>
-          </View>
-        </View>
-        
-        {isGuerreInterieureMode && (
-          <View style={styles.timerContainer}>
-            <Text style={styles.timerText}>{timeLeft}s</Text>
-          </View>
-        )}
-
-        <Animated.View style={[styles.content, isGuerreInterieureMode && animatedStyle]}>
-          <View style={[styles.wordContainer, isGuerreInterieureMode && styles.guerreWordContainer]}>
-            <Text style={[styles.word, isGuerreInterieureMode && styles.guerreWord]}>{currentWord.word}</Text>
-            <Text style={styles.category}>{currentWord.category}</Text>
-          </View>
-
-          <View style={styles.definitionsContainer}>
-            {definitions.map((definition, index) => (
-              <TouchableOpacity
-                key={index}
-                style={getDefinitionStyle(definition, index)}
-                onPress={() => handleDefinitionPress(definition, index)}
-                disabled={answered}
+      {/* ImageBackground toujours présent pour préchargement */}
+      <ImageBackground 
+        source={require('./assets/img_guerre_interieure.png')} 
+        style={[styles.guerreBackground, !isGuerreInterieureMode && styles.hidden]}
+        resizeMode="cover"
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <StatusBar barStyle="light-content" backgroundColor="#000000" />
+          
+          <View style={[styles.header, styles.guerreHeader]}>
+            <Text style={styles.title}>Guerre Intérieure</Text>
+            <View style={styles.headerRight}>
+              <TouchableOpacity 
+                style={styles.leaderboardButton}
+                onPress={() => setShowLeaderboard(true)}
               >
-                <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
+                <Text style={styles.leaderboardButtonText}>🏆</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-
-          <TouchableOpacity style={[styles.button, isGuerreInterieureMode && styles.guerreButton]} onPress={setupNewRound}>
-            <Text style={[styles.buttonText, isGuerreInterieureMode && styles.guerreButtonText]}>Nouveau Mot</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Guerre Intérieure</Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isGuerreInterieureMode ? "#f5dd4b" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleGuerreInterieureMode}
-            value={isGuerreInterieureMode}
-          />
-        </View>
-
-        {/* Modal for entering player name */}
-        <Modal
-          visible={showNameModal}
-          transparent={true}
-          animationType="slide"
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Félicitations !</Text>
-              <Text style={styles.modalText}>Votre score de {finalScore} mérite d'être dans le classement !</Text>
-              <Text style={styles.modalLabel}>Entrez votre nom :</Text>
-              <TextInput
-                style={styles.nameInput}
-                value={playerName}
-                onChangeText={setPlayerName}
-                placeholder="Votre nom"
-                maxLength={20}
-                autoFocus={true}
-              />
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => {
-                    setShowNameModal(false);
-                    setPlayerName('');
-                  }}
-                >
-                  <Text style={styles.cancelButtonText}>Annuler</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.confirmButton]}
-                  onPress={handleNameSubmit}
-                >
-                  <Text style={styles.confirmButtonText}>Confirmer</Text>
-                </TouchableOpacity>
+              <View style={styles.scoreContainer}>
+                  <Text style={styles.scoreText}>Score: {score}</Text>
               </View>
             </View>
           </View>
-        </Modal>
-
-        {/* Modal for displaying leaderboard */}
-        <Modal
-          visible={showLeaderboard}
-          transparent={true}
-          animationType="slide"
-        >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, styles.leaderboardModal]}>
-              <Text style={styles.modalTitle}>🏆 Classement</Text>
-              <ScrollView style={styles.leaderboardList}>
-                {leaderboard.length === 0 ? (
-                  <Text style={styles.emptyLeaderboard}>Aucun score enregistré</Text>
-                ) : (
-                  leaderboard.map((entry, index) => (
-                    <View key={index} style={styles.leaderboardEntry}>
-                      <Text style={styles.leaderboardRank}>#{index + 1}</Text>
-                      <View style={styles.leaderboardInfo}>
-                        <Text style={styles.leaderboardName}>{entry.name}</Text>
-                        <Text style={styles.leaderboardDate}>{entry.date}</Text>
-                      </View>
-                      <Text style={styles.leaderboardScore}>{entry.score}</Text>
-                    </View>
-                  ))
-                )}
-              </ScrollView>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.closeButton]}
-                onPress={() => setShowLeaderboard(false)}
-              >
-                <Text style={styles.closeButtonText}>Fermer</Text>
-              </TouchableOpacity>
-            </View>
+          
+          <View style={styles.timerContainer}>
+            <Text style={styles.timerText}>{timeLeft}s</Text>
           </View>
-        </Modal>
-      </SafeAreaView>
+
+          <Animated.View style={[styles.content, animatedStyle]}>
+            <View style={[styles.wordContainer, styles.guerreWordContainer]}>
+              <Text style={[styles.word, styles.guerreWord]}>{currentWord.word}</Text>
+              <Text style={[styles.category, styles.guerreCategory]}>{currentWord.category}</Text>
+            </View>
+
+            <View style={styles.definitionsContainer}>
+              {definitions.map((definition, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={getDefinitionStyle(definition, index)}
+                  onPress={() => handleDefinitionPress(definition, index)}
+                  disabled={answered}
+                >
+                  <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity style={[styles.button, styles.guerreButton]} onPress={setupNewRound}>
+              <Text style={[styles.buttonText, styles.guerreButtonText]}>Nouveau Mot</Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <View style={styles.switchContainer}>
+            <Text style={[styles.switchLabel, styles.guerreSwitchLabel]}>Guerre Intérieure</Text>
+            <Switch
+              trackColor={{ false: "#767577", true: "#81b0ff" }}
+              thumbColor={isGuerreInterieureMode ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleGuerreInterieureMode}
+              value={isGuerreInterieureMode}
+            />
+          </View>
+
+          {/* Modal for entering player name */}
+          <Modal
+            visible={showNameModal}
+            transparent={true}
+            animationType="slide"
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Félicitations !</Text>
+                <Text style={styles.modalText}>Votre score de {finalScore} mérite d'être dans le classement !</Text>
+                <Text style={styles.modalLabel}>Entrez votre nom :</Text>
+                <TextInput
+                  style={styles.nameInput}
+                  value={playerName}
+                  onChangeText={setPlayerName}
+                  placeholder="Votre nom"
+                  maxLength={20}
+                  autoFocus={true}
+                />
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => {
+                      setShowNameModal(false);
+                      setPlayerName('');
+                    }}
+                  >
+                    <Text style={styles.cancelButtonText}>Annuler</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.confirmButton]}
+                    onPress={handleNameSubmit}
+                  >
+                    <Text style={styles.confirmButtonText}>Confirmer</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Modal for displaying leaderboard */}
+          <Modal
+            visible={showLeaderboard}
+            transparent={true}
+            animationType="slide"
+          >
+            <View style={styles.modalOverlay}>
+              <View style={[styles.modalContent, styles.leaderboardModal]}>
+                <Text style={styles.modalTitle}>🏆 Classement</Text>
+                <ScrollView style={styles.leaderboardList}>
+                  {leaderboard.length === 0 ? (
+                    <Text style={styles.emptyLeaderboard}>Aucun score enregistré</Text>
+                  ) : (
+                    leaderboard.map((entry, index) => (
+                      <View key={index} style={styles.leaderboardEntry}>
+                        <Text style={styles.leaderboardRank}>#{index + 1}</Text>
+                        <View style={styles.leaderboardInfo}>
+                          <Text style={styles.leaderboardName}>{entry.name}</Text>
+                          <Text style={styles.leaderboardDate}>{entry.date}</Text>
+                        </View>
+                        <Text style={styles.leaderboardScore}>{entry.score}</Text>
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.closeButton]}
+                  onPress={() => setShowLeaderboard(false)}
+                >
+                  <Text style={styles.closeButtonText}>Fermer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </SafeAreaView>
+      </ImageBackground>
+
+      {/* Vue normale au-dessus quand guerre intérieure est désactivée */}
+      {!isGuerreInterieureMode && (
+        <View style={styles.normalView}>
+          <SafeAreaView style={styles.safeArea}>
+            <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
+            
+            <View style={styles.header}>
+              <Text style={styles.title}>Mots Rares</Text>
+              <View style={styles.headerRight}>
+                <TouchableOpacity 
+                  style={styles.leaderboardButton}
+                  onPress={() => setShowLeaderboard(true)}
+                >
+                  <Text style={styles.leaderboardButtonText}>🏆</Text>
+                </TouchableOpacity>
+                <View style={styles.scoreContainer}>
+                    <Text style={styles.scoreText}>Score: {score}</Text>
+                </View>
+              </View>
+            </View>
+
+            <Animated.View style={styles.content}>
+              <View style={styles.wordContainer}>
+                <Text style={styles.word}>{currentWord.word}</Text>
+                <Text style={styles.category}>{currentWord.category}</Text>
+              </View>
+
+              <View style={styles.definitionsContainer}>
+                {definitions.map((definition, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={getDefinitionStyle(definition, index)}
+                    onPress={() => handleDefinitionPress(definition, index)}
+                    disabled={answered}
+                  >
+                    <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <TouchableOpacity style={styles.button} onPress={setupNewRound}>
+                <Text style={styles.buttonText}>Nouveau Mot</Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Guerre Intérieure</Text>
+              <Switch
+                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                thumbColor={isGuerreInterieureMode ? "#f5dd4b" : "#f4f3f4"}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleGuerreInterieureMode}
+                value={isGuerreInterieureMode}
+              />
+            </View>
+
+            {/* Modal for entering player name */}
+            <Modal
+              visible={showNameModal}
+              transparent={true}
+              animationType="slide"
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Félicitations !</Text>
+                  <Text style={styles.modalText}>Votre score de {finalScore} mérite d'être dans le classement !</Text>
+                  <Text style={styles.modalLabel}>Entrez votre nom :</Text>
+                  <TextInput
+                    style={styles.nameInput}
+                    value={playerName}
+                    onChangeText={setPlayerName}
+                    placeholder="Votre nom"
+                    maxLength={20}
+                    autoFocus={true}
+                  />
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.cancelButton]}
+                      onPress={() => {
+                        setShowNameModal(false);
+                        setPlayerName('');
+                      }}
+                    >
+                      <Text style={styles.cancelButtonText}>Annuler</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.confirmButton]}
+                      onPress={handleNameSubmit}
+                    >
+                      <Text style={styles.confirmButtonText}>Confirmer</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+
+            {/* Modal for displaying leaderboard */}
+            <Modal
+              visible={showLeaderboard}
+              transparent={true}
+              animationType="slide"
+            >
+              <View style={styles.modalOverlay}>
+                <View style={[styles.modalContent, styles.leaderboardModal]}>
+                  <Text style={styles.modalTitle}>🏆 Classement</Text>
+                  <ScrollView style={styles.leaderboardList}>
+                    {leaderboard.length === 0 ? (
+                      <Text style={styles.emptyLeaderboard}>Aucun score enregistré</Text>
+                    ) : (
+                      leaderboard.map((entry, index) => (
+                        <View key={index} style={styles.leaderboardEntry}>
+                          <Text style={styles.leaderboardRank}>#{index + 1}</Text>
+                          <View style={styles.leaderboardInfo}>
+                            <Text style={styles.leaderboardName}>{entry.name}</Text>
+                            <Text style={styles.leaderboardDate}>{entry.date}</Text>
+                          </View>
+                          <Text style={styles.leaderboardScore}>{entry.score}</Text>
+                        </View>
+                      ))
+                    )}
+                  </ScrollView>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.closeButton]}
+                    onPress={() => setShowLeaderboard(false)}
+                  >
+                    <Text style={styles.closeButtonText}>Fermer</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          </SafeAreaView>
+        </View>
+      )}
     </View>
   );
 };
@@ -402,6 +541,16 @@ const styles = StyleSheet.create({
   },
   guerreBackground: {
     flex: 1,
+    backgroundColor: '#0F0F0F',
+  },
+  hidden: {
+    opacity: 0,
+    zIndex: -1,
+  },
+  normalView: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#F0F4F8',
+    zIndex: 1,
   },
   safeArea: {
     flex: 1,
@@ -418,6 +567,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  guerreHeader: {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderBottomWidth: 2,
+    borderBottomColor: '#8A2BE2',
   },
   title: {
     fontSize: 24,
@@ -451,7 +605,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   timerContainer: {
-    backgroundColor: '#FF4757',
+    backgroundColor: '#8A2BE2',
     paddingVertical: 8,
     alignItems: 'center',
   },
@@ -478,9 +632,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   guerreWordContainer: {
-    backgroundColor: '#2C2C2C',
-    borderColor: '#FF4757',
+    backgroundColor: 'rgba(44, 44, 44, 0.9)',
+    borderColor: '#8A2BE2',
     borderWidth: 2,
+    shadowColor: '#8A2BE2',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
   },
   word: {
     fontSize: 32,
@@ -490,15 +649,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   guerreWord: {
-    color: '#FF4757',
-    textShadowColor: 'rgba(255, 71, 87, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    color: '#FFFFFF',
+    fontSize: 36,
+    fontWeight: 'bold',
   },
   category: {
     fontSize: 14,
     color: '#7F8C8D',
     fontStyle: 'italic',
+  },
+  guerreCategory: {
+    color: '#CCCCCC',
+    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   definitionsContainer: {
     marginBottom: 30,
@@ -515,9 +679,13 @@ const styles = StyleSheet.create({
     shadowRadius: 1.0,
   },
   guerreDefinitionButton: {
-    backgroundColor: '#2C2C2C',
-    borderColor: '#FF4757',
+    backgroundColor: 'rgba(44, 44, 44, 0.9)',
+    borderColor: '#8A2BE2',
     borderWidth: 1,
+    shadowColor: '#8A2BE2',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   definitionText: {
     fontSize: 16,
@@ -526,6 +694,9 @@ const styles = StyleSheet.create({
   },
   guerreDefinitionText: {
     color: '#FFFFFF',
+    textShadowColor: 'rgba(255, 255, 255, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   correctAnswer: {
     backgroundColor: '#27AE60',
@@ -541,7 +712,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   guerreButton: {
-    backgroundColor: '#FF4757',
+    backgroundColor: '#8A2BE2',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#8A2BE2',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
   },
   buttonText: {
     color: '#FFFFFF',
@@ -549,9 +727,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   guerreButtonText: {
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+    fontSize: 20,
   },
   switchContainer: {
     flexDirection: 'row',
@@ -564,6 +743,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#2C3E50',
     marginRight: 10,
+  },
+  guerreSwitchLabel: {
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(138, 43, 226, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    fontWeight: 'bold',
   },
   // Modal styles
   modalOverlay: {
