@@ -15,6 +15,7 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio } from 'expo-av';
 // Import the word database
 import frenchWordsData from './frenchWords.json';
 
@@ -44,6 +45,8 @@ const App = () => {
   const [isGuerreInterieureMode, setIsGuerreInterieureMode] = useState(false);
   // State for the timer
   const [timeLeft, setTimeLeft] = useState(30);
+  // State for epic music
+  const [epicMusicSound, setEpicMusicSound] = useState(null);
   // Animated value for dramatic animations
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -167,11 +170,19 @@ const App = () => {
       // Capture the current score before resetting the mode
       const finalScore = score;
       setIsGuerreInterieureMode(false);
-      setTimeLeft(30); // Reset timer to 30 seconds
+      setTimeLeft(15); // Reset timer to 15 seconds
+      stopEpicMusic(); // Arrêter la musique épique
       handleGameEnd(finalScore); // Check if score qualifies for leaderboard
     }
     return () => clearInterval(timer);
   }, [isGuerreInterieureMode, timeLeft, score]);
+
+  // Cleanup effect for epic music
+  useEffect(() => {
+    return () => {
+      stopEpicMusic();
+    };
+  }, []);
 
   // Handle when a user selects a definition
   const handleDefinitionPress = (definition, index) => {
@@ -183,6 +194,8 @@ const App = () => {
     if (definition === currentWord.definition) {
       setScore(prevScore => prevScore + 1);
       if (isGuerreInterieureMode) {
+        // Ajouter 3 secondes au chronomètre pour une bonne réponse
+        setTimeLeft(prevTime => prevTime + 3);
         // Dramatic success animation
         Animated.sequence([
           Animated.timing(scaleAnim, { toValue: 1.2, duration: 200, useNativeDriver: true }),
@@ -204,11 +217,46 @@ const App = () => {
     }
   };
 
+  // Function to load and play epic music
+  const loadEpicMusic = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('./assets/1983 inst mix ab oz.mp3'),
+        { shouldPlay: true, isLooping: true, volume: 0.3 }
+      );
+      setEpicMusicSound(sound);
+    } catch (error) {
+      console.log('Erreur lors du chargement de la musique épique:', error);
+    }
+  };
+
+  // Function to stop epic music
+  const stopEpicMusic = async () => {
+    if (epicMusicSound) {
+      try {
+        await epicMusicSound.stopAsync();
+        await epicMusicSound.unloadAsync();
+        setEpicMusicSound(null);
+      } catch (error) {
+        console.log('Erreur lors de l\'arrêt de la musique épique:', error);
+      }
+    }
+  };
+
   // Toggle "Guerre intérieure" mode
-  const toggleGuerreInterieureMode = () => {
-    setIsGuerreInterieureMode(previousState => !previousState);
+  const toggleGuerreInterieureMode = async () => {
+    const newMode = !isGuerreInterieureMode;
+    setIsGuerreInterieureMode(newMode);
     setScore(0);
-    setTimeLeft(30);
+    setTimeLeft(15); // Commencer avec 15 secondes
+    
+    if (newMode) {
+      // Mode guerre intérieure activé - lancer la musique épique
+      await loadEpicMusic();
+    } else {
+      // Mode guerre intérieure désactivé - arrêter la musique épique
+      await stopEpicMusic();
+    }
   };
 
   // Function to determine the style of a definition button
