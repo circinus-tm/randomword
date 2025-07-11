@@ -1,20 +1,691 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  ImageBackground,
+  Switch,
+  Animated,
+  Modal,
+  TextInput,
+  Alert,
+  ScrollView,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// Import the word database
+import frenchWordsData from './frenchWords.json';
 
-export default function App() {
+// Helper function to shuffle an array
+const shuffleArray = (array) => {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
+const App = () => {
+  // State for the current word object
+  const [currentWord, setCurrentWord] = useState(null);
+  // State for the score
+  const [score, setScore] = useState(0);
+  // State to hold the 4 definition choices
+  const [definitions, setDefinitions] = useState([]);
+  // State to track if the current question has been answered
+  const [answered, setAnswered] = useState(false);
+  // State to track the index of the selected definition
+  const [selectedDefinitionIndex, setSelectedDefinitionIndex] = useState(null);
+  // State for "Guerre intérieure" mode
+  const [isGuerreInterieureMode, setIsGuerreInterieureMode] = useState(false);
+  // State for the timer
+  const [timeLeft, setTimeLeft] = useState(30);
+  // Animated value for dramatic animations
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  // Leaderboard states
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [playerName, setPlayerName] = useState('');
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
+
+  // Function to get a random word, optionally excluding the current one
+  const getRandomWord = (excludeWord = null) => {
+    let newWord;
+    do {
+      newWord = frenchWordsData[Math.floor(Math.random() * frenchWordsData.length)];
+    } while (excludeWord && newWord.word === excludeWord.word);
+    return newWord;
+  };
+
+  // Leaderboard functions
+  const loadLeaderboard = async () => {
+    try {
+      const storedLeaderboard = await AsyncStorage.getItem('leaderboard');
+      if (storedLeaderboard) {
+        const parsed = JSON.parse(storedLeaderboard);
+        setLeaderboard(parsed);
+      }
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
+    }
+  };
+
+  const saveLeaderboard = async (newLeaderboard) => {
+    try {
+      await AsyncStorage.setItem('leaderboard', JSON.stringify(newLeaderboard));
+      setLeaderboard(newLeaderboard);
+    } catch (error) {
+      console.error('Error saving leaderboard:', error);
+    }
+  };
+
+  const checkIfScoreQualifies = (score) => {
+    if (leaderboard.length < 10) return true;
+    return score > leaderboard[leaderboard.length - 1].score;
+  };
+
+  const addToLeaderboard = (name, score) => {
+    const newEntry = { name, score, date: new Date().toLocaleDateString() };
+    const updatedLeaderboard = [...leaderboard, newEntry]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+    saveLeaderboard(updatedLeaderboard);
+    
+    // Find the rank of the new entry
+    const rank = updatedLeaderboard.findIndex(entry => entry.name === name && entry.score === score) + 1;
+    return rank;
+  };
+
+  const handleGameEnd = (currentScore = score) => {
+    setFinalScore(currentScore);
+    if (checkIfScoreQualifies(currentScore)) {
+      setShowNameModal(true);
+    } else {
+      Alert.alert(
+        'Partie terminée !',
+        `Votre score : ${currentScore}\nMalheureusement, ce score n'est pas suffisant pour entrer dans le top 10.`,
+        [
+          { text: 'OK', onPress: () => {} },
+          { text: 'Voir le classement', onPress: () => setShowLeaderboard(true) }
+        ]
+      );
+    }
+  };
+
+  const handleNameSubmit = () => {
+    if (playerName.trim()) {
+      const rank = addToLeaderboard(playerName.trim(), finalScore);
+      setShowNameModal(false);
+      setPlayerName('');
+      Alert.alert(
+        'Félicitations !',
+        `${playerName.trim()} a été ajouté au classement à la ${rank}${rank === 1 ? 'ère' : 'ème'} place avec un score de ${finalScore} !`,
+        [{ text: 'Voir le classement', onPress: () => setShowLeaderboard(true) }]
+      );
+    }
+  };
+
+  // Function to set up a new round
+  const setupNewRound = () => {
+    setAnswered(false);
+    setSelectedDefinitionIndex(null);
+    const newWord = getRandomWord(currentWord);
+    setCurrentWord(newWord);
+
+    const wrongDefinitions = [];
+    while (wrongDefinitions.length < 3) {
+      const randomWord = getRandomWord(newWord);
+      if (randomWord.definition !== newWord.definition) {
+        wrongDefinitions.push(randomWord.definition);
+      }
+    }
+
+    const allDefinitions = shuffleArray([newWord.definition, ...wrongDefinitions]);
+    setDefinitions(allDefinitions);
+  };
+
+  // Initialize the first round when the component mounts
+  useEffect(() => {
+    setupNewRound();
+    loadLeaderboard();
+  }, []);
+
+  // Timer effect for "Guerre intérieure" mode
+  useEffect(() => {
+    let timer;
+    if (isGuerreInterieureMode && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prevTime => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && isGuerreInterieureMode) {
+      // Capture the current score before resetting the mode
+      const finalScore = score;
+      setIsGuerreInterieureMode(false);
+      setTimeLeft(30); // Reset timer to 30 seconds
+      handleGameEnd(finalScore); // Check if score qualifies for leaderboard
+    }
+    return () => clearInterval(timer);
+  }, [isGuerreInterieureMode, timeLeft, score]);
+
+  // Handle when a user selects a definition
+  const handleDefinitionPress = (definition, index) => {
+    if (answered) return;
+
+    setAnswered(true);
+    setSelectedDefinitionIndex(index);
+
+    if (definition === currentWord.definition) {
+      setScore(prevScore => prevScore + 1);
+      if (isGuerreInterieureMode) {
+        // Dramatic success animation
+        Animated.sequence([
+          Animated.timing(scaleAnim, { toValue: 1.2, duration: 200, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+        ]).start();
+      }
+    } else {
+      // In guerre intérieure mode, wrong answers make you lose a point
+      if (isGuerreInterieureMode) {
+        setScore(prevScore => Math.max(0, prevScore - 1)); // Prevent score from going below 0
+        // Dramatic fail animation
+        Animated.sequence([
+          Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+        ]).start();
+      }
+    }
+  };
+
+  // Toggle "Guerre intérieure" mode
+  const toggleGuerreInterieureMode = () => {
+    setIsGuerreInterieureMode(previousState => !previousState);
+    setScore(0);
+    setTimeLeft(30);
+  };
+
+  // Function to determine the style of a definition button
+  const getDefinitionStyle = (definition, index) => {
+    const stylesArray = [styles.definitionButton];
+    if (isGuerreInterieureMode) {
+      stylesArray.push(styles.guerreDefinitionButton);
+    }
+    if (answered) {
+      if (definition === currentWord.definition) {
+        stylesArray.push(styles.correctAnswer);
+      } else if (index === selectedDefinitionIndex) {
+        stylesArray.push(styles.incorrectAnswer);
+      }
+    }
+    return stylesArray;
+  };
+
+  // Function to determine the text style for a definition button
+  const getDefinitionTextStyle = (definition, index) => {
+      if (answered && (definition === currentWord.definition || index === selectedDefinitionIndex)) {
+          return [styles.definitionText, { color: '#FFFFFF' }];
+      }
+      
+      // In guerre intérieure mode, use white text for better visibility
+      if (isGuerreInterieureMode) {
+          return styles.guerreDefinitionText;
+      }
+      
+      return styles.definitionText;
+  }
+
+  // Render a loading state or null while the first word is being set up
+  if (!currentWord) {
+    return null;
+  }
+
+  const shake = shakeAnim.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ['-1deg', '1deg'],
+  });
+
+  const animatedStyle = {
+    transform: [{ scale: scaleAnim }, { rotate: shake }],
+  };
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor={isGuerreInterieureMode ? '#000000' : '#4A90E2'} />
+        
+        <View style={styles.header}>
+          <Text style={styles.title}>{isGuerreInterieureMode ? "Guerre Intérieure" : "Mots Rares"}</Text>
+          <View style={styles.headerRight}>
+            <TouchableOpacity 
+              style={styles.leaderboardButton}
+              onPress={() => setShowLeaderboard(true)}
+            >
+              <Text style={styles.leaderboardButtonText}>🏆</Text>
+            </TouchableOpacity>
+            <View style={styles.scoreContainer}>
+                <Text style={styles.scoreText}>Score: {score}</Text>
+            </View>
+          </View>
+        </View>
+        
+        {isGuerreInterieureMode && (
+          <View style={styles.timerContainer}>
+            <Text style={styles.timerText}>{timeLeft}s</Text>
+          </View>
+        )}
+
+        <Animated.View style={[styles.content, isGuerreInterieureMode && animatedStyle]}>
+          <View style={[styles.wordContainer, isGuerreInterieureMode && styles.guerreWordContainer]}>
+            <Text style={[styles.word, isGuerreInterieureMode && styles.guerreWord]}>{currentWord.word}</Text>
+            <Text style={styles.category}>{currentWord.category}</Text>
+          </View>
+
+          <View style={styles.definitionsContainer}>
+            {definitions.map((definition, index) => (
+              <TouchableOpacity
+                key={index}
+                style={getDefinitionStyle(definition, index)}
+                onPress={() => handleDefinitionPress(definition, index)}
+                disabled={answered}
+              >
+                <Text style={getDefinitionTextStyle(definition, index)}>{definition}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity style={[styles.button, isGuerreInterieureMode && styles.guerreButton]} onPress={setupNewRound}>
+            <Text style={[styles.buttonText, isGuerreInterieureMode && styles.guerreButtonText]}>Nouveau Mot</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <View style={styles.switchContainer}>
+          <Text style={styles.switchLabel}>Guerre Intérieure</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isGuerreInterieureMode ? "#f5dd4b" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleGuerreInterieureMode}
+            value={isGuerreInterieureMode}
+          />
+        </View>
+
+        {/* Modal for entering player name */}
+        <Modal
+          visible={showNameModal}
+          transparent={true}
+          animationType="slide"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Félicitations !</Text>
+              <Text style={styles.modalText}>Votre score de {finalScore} mérite d'être dans le classement !</Text>
+              <Text style={styles.modalLabel}>Entrez votre nom :</Text>
+              <TextInput
+                style={styles.nameInput}
+                value={playerName}
+                onChangeText={setPlayerName}
+                placeholder="Votre nom"
+                maxLength={20}
+                autoFocus={true}
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => {
+                    setShowNameModal(false);
+                    setPlayerName('');
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>Annuler</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={handleNameSubmit}
+                >
+                  <Text style={styles.confirmButtonText}>Confirmer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal for displaying leaderboard */}
+        <Modal
+          visible={showLeaderboard}
+          transparent={true}
+          animationType="slide"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, styles.leaderboardModal]}>
+              <Text style={styles.modalTitle}>🏆 Classement</Text>
+              <ScrollView style={styles.leaderboardList}>
+                {leaderboard.length === 0 ? (
+                  <Text style={styles.emptyLeaderboard}>Aucun score enregistré</Text>
+                ) : (
+                  leaderboard.map((entry, index) => (
+                    <View key={index} style={styles.leaderboardEntry}>
+                      <Text style={styles.leaderboardRank}>#{index + 1}</Text>
+                      <View style={styles.leaderboardInfo}>
+                        <Text style={styles.leaderboardName}>{entry.name}</Text>
+                        <Text style={styles.leaderboardDate}>{entry.date}</Text>
+                      </View>
+                      <Text style={styles.leaderboardScore}>{entry.score}</Text>
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={() => setShowLeaderboard(false)}
+              >
+                <Text style={styles.closeButtonText}>Fermer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F0F4F8',
+  },
+  guerreBackground: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#4A90E2',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  scoreContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginLeft: 10,
+  },
+  scoreText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  leaderboardButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  leaderboardButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+  },
+  timerContainer: {
+    backgroundColor: '#FF4757',
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  timerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  wordContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 30,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    alignItems: 'center',
+  },
+  guerreWordContainer: {
+    backgroundColor: '#2C2C2C',
+    borderColor: '#FF4757',
+    borderWidth: 2,
+  },
+  word: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  guerreWord: {
+    color: '#FF4757',
+    textShadowColor: 'rgba(255, 71, 87, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  category: {
+    fontSize: 14,
+    color: '#7F8C8D',
+    fontStyle: 'italic',
+  },
+  definitionsContainer: {
+    marginBottom: 30,
+  },
+  definitionButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.18,
+    shadowRadius: 1.0,
+  },
+  guerreDefinitionButton: {
+    backgroundColor: '#2C2C2C',
+    borderColor: '#FF4757',
+    borderWidth: 1,
+  },
+  definitionText: {
+    fontSize: 16,
+    color: '#2C3E50',
+    lineHeight: 22,
+  },
+  guerreDefinitionText: {
+    color: '#FFFFFF',
+  },
+  correctAnswer: {
+    backgroundColor: '#27AE60',
+  },
+  incorrectAnswer: {
+    backgroundColor: '#E74C3C',
+  },
+  button: {
+    backgroundColor: '#4A90E2',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  guerreButton: {
+    backgroundColor: '#FF4757',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  guerreButtonText: {
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  switchContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: '#2C3E50',
+    marginRight: 10,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+    width: '90%',
+    maxWidth: 400,
+  },
+  leaderboardModal: {
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+    color: '#2C3E50',
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#34495E',
+  },
+  modalLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: '#2C3E50',
+  },
+  nameInput: {
+    borderWidth: 1,
+    borderColor: '#BDC3C7',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: '#95A5A6',
+  },
+  confirmButton: {
+    backgroundColor: '#27AE60',
+  },
+  closeButton: {
+    backgroundColor: '#4A90E2',
+    marginTop: 15,
+  },
+  cancelButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  confirmButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // Leaderboard styles
+  leaderboardList: {
+    maxHeight: 300,
+  },
+  leaderboardEntry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECF0F1',
+  },
+  leaderboardRank: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E67E22',
+    width: 40,
+  },
+  leaderboardInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  leaderboardName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+  },
+  leaderboardDate: {
+    fontSize: 12,
+    color: '#7F8C8D',
+  },
+  leaderboardScore: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#27AE60',
+  },
+  emptyLeaderboard: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#7F8C8D',
+    fontStyle: 'italic',
+    paddingVertical: 20,
   },
 });
+
+export default App;
